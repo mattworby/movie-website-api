@@ -17,7 +17,7 @@ const server = new Hapi.Server(serverOptions);
   // Handle a new viewer requesting the color.
   server.route({
     method: 'GET',
-    path: '/{type}/{searchItem}',
+    path: '/{type}/{searchItem}/{page}',
     handler: handleHapiRequest
   });
 
@@ -34,11 +34,14 @@ process.on('unhandledRejection', (err) => {
 
 async function handleHapiRequest(req){
     let movieSearch;
-    let movieResult;
+    let moviePage;
+    let p1;
+    let p2;
 
     switch(req.params.type){
         case 'search':
             movieSearch = req.params.searchItem;
+            moviePage = req.params.page;
             movieSearch = movieSearch.replace(/ /g,"+");
             break;
         default:
@@ -46,18 +49,33 @@ async function handleHapiRequest(req){
     }
     
     let promise = new Promise((resolve,reject) =>{
-		getMoviesJSON(movieSearch,function(result){
+		getMoviesJSON(movieSearch,moviePage,function(result){
 			resolve(result);
 		});
 	});
 
-    movieResult = await promise;
+    p1 = await promise;
+
+    moviePage = parseInt(moviePage) + 1;
+
+    let nextPromise = new Promise((resolve,reject) =>{
+		getMoviesJSON(movieSearch,moviePage,function(result){
+			resolve(result);
+		});
+	});
+
+    p2 = await nextPromise;
+
+    let result = {
+        p1,
+        p2
+    }
     
-    return movieResult;
+    return result;
 }
 
-function getMoviesJSON(searchTerm,callback){
-    let url = `http://www.omdbapi.com/?apikey=7d0b3bd8&s=${searchTerm}`;
+function getMoviesJSON(searchTerm,page,callback){
+    let url = `http://www.omdbapi.com/?apikey=7d0b3bd8&s=${searchTerm}&page=${page}`;
 
     http.get(url,(res) => {
         let body = "";
