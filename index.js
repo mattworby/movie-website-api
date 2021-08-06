@@ -99,3 +99,4 @@ function getMoviesJSON(searchTerm,page,callback){
         console.error(error.message);
     });
 }
+

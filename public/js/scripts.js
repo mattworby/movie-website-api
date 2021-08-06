@@ -1,3 +1,6 @@
+let pageNumber;
+let searchTerm;
+
 function populateSearch(resOne,resTwo){
     let divCount = 0;
 
@@ -37,13 +40,52 @@ function populateSearch(resOne,resTwo){
     }
 }
 
-function beginSearch(value,page){
-    fetch(`http://localhost:8082/search/${value}/${page}`).then(function (response) {
+function beginSearch(value){
+    pageNumber = 1;
+    searchTerm = value;
+
+    fetch(`http://localhost:8082/search/${searchTerm}/${pageNumber}`).then(function (response) {
 	    // The API call was successful!
 	    return response.json();
     }).then(function (data) {
 	    // This is the JSON from our response
         console.log(data);
+	    populateSearch(data.p1.Search,data.p2.Search);
+    }).catch(function (err) {
+	    // There was an error
+	    console.warn('Something went wrong.', err);
+    });
+
+    document.getElementById('nextSearchButton').disabled = false;
+}
+
+function nextSearch(dir){
+    let getPages;
+
+    switch (dir){
+        case 'prev':
+            pageNumber--;
+            getPages = (pageNumber * 2) - 1;
+            break;
+        case 'next':
+            pageNumber++;
+            getPages = (pageNumber * 2) - 1;
+            break;
+        default:
+            break;
+    }
+
+    if (pageNumber > 1){
+        document.getElementById('previousSearchButton').disabled = false;
+    } else {
+        document.getElementById('previousSearchButton').disabled = true;
+    }
+
+    fetch(`http://localhost:8082/search/${searchTerm}/${getPages}`).then(function (response) {
+	    // The API call was successful!
+	    return response.json();
+    }).then(function (data) {
+	    // This is the JSON from our response
 	    populateSearch(data.p1.Search,data.p2.Search);
     }).catch(function (err) {
 	    // There was an error

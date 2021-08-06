@@ -16,8 +16,9 @@
   <!-- your content here... -->
   <div id='searchFormDiv'>
     <input type="text" name="q" class="form-control" placeholder="Search for movie..." id="searchTextValue"></input>
-    <button id="searchButton" type="submit" class="btn btn-default" value="1" onClick="beginSearch(document.getElementById('searchTextValue').value, this.value)">Search</button>
-
+    <button id="searchButton" type="submit" class="btn btn-default" value="1" onClick="beginSearch(document.getElementById('searchTextValue').value)">Search</button>
+    <button id="previousSearchButton" type="submit" class="btn btn-default" value="prev" onClick="nextSearch(this.value)" disabled>Previous</button>
+    <button id="nextSearchButton" type="submit" class="btn btn-default" value="next" onClick="nextSearch(this.value)" disabled>Next</button>
   </div>
 
   <div id='searchReturnDiv'>
