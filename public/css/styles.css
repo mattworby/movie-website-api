@@ -4,3 +4,20 @@
     height:140vh;
     flex-direction: column;
 }
+
+#movieMain{
+    display:flex;
+    height:400px;
+}
+
+#movieImage{
+    height:100%;
+    flex: 1;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#movieDesc{
+    height:100%;
+    flex: 3;
+}

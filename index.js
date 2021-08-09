@@ -21,6 +21,12 @@ const server = new Hapi.Server(serverOptions);
     handler: handleHapiRequest
   });
 
+  server.route({
+    method: 'GET',
+    path: '/{type}/{id}',
+    handler: handleMovieRequest
+  });
+
   // Start the server.
   await server.start();
   console.log('Server running on %s', server.info.uri);
@@ -33,20 +39,13 @@ process.on('unhandledRejection', (err) => {
 });
 
 async function handleHapiRequest(req){
-    let movieSearch;
-    let moviePage;
+    let movieSearch = req.params.searchItem;;
+    let moviePage = req.params.page;;
     let p1;
     let p2;
+    
+    movieSearch = movieSearch.replace(/ /g,"+");
 
-    switch(req.params.type){
-        case 'search':
-            movieSearch = req.params.searchItem;
-            moviePage = req.params.page;
-            movieSearch = movieSearch.replace(/ /g,"+");
-            break;
-        default:
-            break;
-    }
     
     let promise = new Promise((resolve,reject) =>{
 		getMoviesJSON(movieSearch,moviePage,function(result){
@@ -88,7 +87,6 @@ function getMoviesJSON(searchTerm,page,callback){
             try {
                 let json = JSON.parse(body);
                 // do something with JSON
-
                 return callback(json);
             } catch (error) {
                 console.error(error.message);
@@ -100,3 +98,42 @@ function getMoviesJSON(searchTerm,page,callback){
     });
 }
 
+async function handleMovieRequest(req){
+    let movieInfo;
+    let movieId = req.params.id;
+    
+    let promise = new Promise((resolve,reject) =>{
+		getMovieById(movieId,function(result){
+			resolve(result);
+		});
+	});
+
+    movieInfo = await promise;
+    
+    return movieInfo;
+}
+
+function getMovieById(movieId,callback){
+    let url = `http://www.omdbapi.com/?apikey=7d0b3bd8&i=${movieId}`;
+
+    http.get(url,(res) => {
+        let body = "";
+    
+        res.on("data", (chunk) => {
+            body += chunk;
+        });
+    
+        res.on("end", () => {
+            try {
+                let json = JSON.parse(body);
+                // do something with JSON
+                return callback(json);
+            } catch (error) {
+                console.error(error.message);
+            };
+        });
+    
+    }).on("error", (error) => {
+        console.error(error.message);
+    });
+}

@@ -21,6 +21,7 @@ function populateSearch(resOne,resTwo){
         document.getElementById(`${resOne[i].imdbID}${i}`).style.flex = '1';
         document.getElementById(`${resOne[i].imdbID}${i}`).style.backgroundRepeat = 'no-repeat';
         document.getElementById(`${resOne[i].imdbID}${i}`).style.backgroundSize = 'contain';
+        document.getElementById(`${resOne[i].imdbID}${i}`).setAttribute('onclick',`openMovie("${resOne[i].imdbID}")`);
     }
     for(let i = 0; i < resTwo.length; i++){
         if (i % 5 == 0){
@@ -37,6 +38,7 @@ function populateSearch(resOne,resTwo){
         document.getElementById(`${resTwo[i].imdbID}${i}`).style.flex = '1';
         document.getElementById(`${resTwo[i].imdbID}${i}`).style.backgroundRepeat = 'no-repeat';
         document.getElementById(`${resTwo[i].imdbID}${i}`).style.backgroundSize = 'contain';
+        document.getElementById(`${resOne[i].imdbID}${i}`).setAttribute('onclick',`openMovie("${resOne[i].imdbID}")`);
     }
 }
 
@@ -92,3 +94,21 @@ function nextSearch(dir){
 	    console.warn('Something went wrong.', err);
     });
 }
+
+function openMovie (id){
+    var para = new URLSearchParams();
+    para.append("KEY", id);
+    location.href = "movie.html?" + para.toString();
+}
+
+//fetch(`http://localhost:8082/movie/${id}`).then(function (response) {
+//	    // The API call was successful!
+//	    return response.json();
+//    }).then(function (data) {
+//	    // This is the JSON from our response
+//        console.log(data);
+//	    
+//    }).catch(function (err) {
+//	    // There was an error
+//	    console.warn('Something went wrong.', err);
+//    });
