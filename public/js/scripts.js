@@ -97,18 +97,6 @@ function nextSearch(dir){
 
 function openMovie (id){
     var para = new URLSearchParams();
-    para.append("KEY", id);
-    location.href = "movie.html?" + para.toString();
+    para.append("id", id);
+    location.href = "moviePage.html?" + para.toString();
 }
-
-//fetch(`http://localhost:8082/movie/${id}`).then(function (response) {
-//	    // The API call was successful!
-//	    return response.json();
-//    }).then(function (data) {
-//	    // This is the JSON from our response
-//        console.log(data);
-//	    
-//    }).catch(function (err) {
-//	    // There was an error
-//	    console.warn('Something went wrong.', err);
-//    });
