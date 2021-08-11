@@ -31,8 +31,14 @@ const server = new Hapi.Server(serverOptions);
 
   server.route({
     method: 'GET',
-    path: '/game/{gameTitle}',
+    path: '/game/search/{gameTitle}',
     handler: handleVideoGame
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/game/get/{id}',
+    handler: handleGamePage
   });
 
   // Start the server.
@@ -213,13 +219,13 @@ function retrieveVideoGame(token,game,callback){
             'Client-ID': 'j8gsbdu9iqblx4ian3gh6lxhxs3djc',
             'Authorization': `Bearer ${token}`
         },
-        data: `fields cover; search \"${game}\"; limit 100; `
+        data: `fields cover; search \"${game}\"; limit 50; `
       })
         .then(async response => {
             for(let i = 0; i < response.data.length; i++){
                 if (response.data[i].hasOwnProperty('cover')){
                     let promise = new Promise((resolve,reject) =>{
-                        getVideoGameCover(response.data[i].cover,token,function(result){
+                        getVideoGameCover(response.data[i].id,token,function(result){
                             resolve(result);
                         });
                     });
@@ -237,7 +243,7 @@ function retrieveVideoGame(token,game,callback){
         });
 }
 
-function getVideoGameCover(coverID, token,callback){
+function getVideoGameCover(gameID, token,callback){
     axios({
         url: "https://api.igdb.com/v4/covers",
         method: 'POST',
@@ -246,10 +252,97 @@ function getVideoGameCover(coverID, token,callback){
             'Client-ID': 'j8gsbdu9iqblx4ian3gh6lxhxs3djc',
             'Authorization': `Bearer ${token}`
         },
-        data: `fields *; where id = ${coverID};`
+        data: `fields *; where game = ${gameID};`
       })
         .then(response => {
             return callback(response.data[0]);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+async function handleGamePage(req){
+    let game = req.params.id;
+    let token;
+    let coverImage;
+    let gameDetail;
+
+
+    game = game.replace(/ /g,"+");
+
+    
+    let oauth = new Promise((resolve,reject) =>{
+		getOauth(function(result){
+			resolve(result);
+		});
+	});
+
+    token = await oauth;
+
+    let cover = new Promise((resolve,reject) =>{
+		getVideoGameCover(game,token,function(result){
+			resolve(result);
+		});
+	});
+
+    coverImage = await cover;
+
+    let gamePromise = new Promise((resolve,reject) =>{
+		getGameInformation(game,token,function(result){
+			resolve(result);
+		});
+	});
+
+    gameDetail = await gamePromise;
+
+    let result = {
+        gameDetail,
+        coverImage
+    }
+
+    return result;
+
+}
+
+function getOauth(callback){
+    let url = "https://id.twitch.tv/oauth2/token";
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4) {
+            let json = JSON.parse(xhr.responseText);
+
+            return callback(json.access_token);
+       }};
+
+    let data = `{
+      	"client_id":"j8gsbdu9iqblx4ian3gh6lxhxs3djc",
+    	"client_secret":"ojq3syke1u94pygd3n2f67vzoc5uoq",
+    	"grant_type":"client_credentials"
+    }`;
+
+    xhr.send(data);
+}
+
+function getGameInformation(game, token, callback){
+    axios({
+        url: "https://api.igdb.com/v4/games",
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Client-ID': 'j8gsbdu9iqblx4ian3gh6lxhxs3djc',
+            'Authorization': `Bearer ${token}`
+        },
+        data: `fields *; where id = ${game};`
+      })
+        .then(response => {
+
+           return callback(response.data);
         })
         .catch(err => {
             console.error(err);

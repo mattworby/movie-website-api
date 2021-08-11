@@ -129,7 +129,7 @@ function getVideoGames(search){
     pageNumber = 1;
     searchTerm = search;
 
-    fetch(`http://localhost:8082/game/${searchTerm}`).then(function (response) {
+    fetch(`http://localhost:8082/game/search/${searchTerm}`).then(function (response) {
 	    // The API call was successful!
 	    return response.json();
     }).then(function (data) {
@@ -157,16 +157,18 @@ function populateGames(resOne){
             document.getElementById(`flexDiv${divCount}`).style.marginTop = '1vh';
             document.getElementById(`flexDiv${divCount}`).style.marginRight = '2vw';
         }
-        document.getElementById(`flexDiv${divCount}`).innerHTML += `<div id='${resOne[i].id}${i}'></div>`
-        document.getElementById(`${resOne[i].id}${i}`).style.backgroundImage = `url(https:${resOne[i].url})`
-        document.getElementById(`${resOne[i].id}${i}`).style.height = '100%';
-        document.getElementById(`${resOne[i].id}${i}`).style.flex = '1';
-        document.getElementById(`${resOne[i].id}${i}`).style.backgroundRepeat = 'no-repeat';
-        document.getElementById(`${resOne[i].id}${i}`).style.backgroundSize = 'contain';
-        document.getElementById(`${resOne[i].id}${i}`).setAttribute('onclick',`openGame("${resOne[i].id}")`);
+        document.getElementById(`flexDiv${divCount}`).innerHTML += `<div id='${resOne[i].game}${i}'></div>`
+        document.getElementById(`${resOne[i].game}${i}`).style.backgroundImage = `url(https:${resOne[i].url})`
+        document.getElementById(`${resOne[i].game}${i}`).style.height = '100%';
+        document.getElementById(`${resOne[i].game}${i}`).style.flex = '1';
+        document.getElementById(`${resOne[i].game}${i}`).style.backgroundRepeat = 'no-repeat';
+        document.getElementById(`${resOne[i].game}${i}`).style.backgroundSize = 'contain';
+        document.getElementById(`${resOne[i].game}${i}`).setAttribute('onclick',`openGame("${resOne[i].game}")`);
     }
 }
 
 function openGame(id){
-    alert(id);
+    var para = new URLSearchParams();
+    para.append("id", id);
+    location.href = "videoGamePage.html?" + para.toString();
 }

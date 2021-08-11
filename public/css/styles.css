@@ -21,3 +21,20 @@
     height:100%;
     flex: 3;
 }
+
+#gameMain{
+    display:flex;
+    height:400px;
+}
+
+#gameImage{
+    height:100%;
+    flex: 1;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#gameDesc{
+    height:100%;
+    flex: 3;
+}
