@@ -134,11 +134,39 @@ function getVideoGames(search){
 	    return response.json();
     }).then(function (data) {
 	    // This is the JSON from our response
-        console.log(data);
+        populateGames(data);
     }).catch(function (err) {
 	    // There was an error
 	    console.warn('Something went wrong.', err);
     });
 
     document.getElementById('nextSearchButton').disabled = false;
+}
+
+function populateGames(resOne){
+    let divCount = 0;
+
+    document.getElementById('searchReturnDiv').innerHTML = '';
+
+    for(let i = 0; i < resOne.length; i++){
+        if (i % 10 == 0){
+            divCount += 1;
+            document.getElementById('searchReturnDiv').innerHTML += `<div id='flexDiv${divCount}'></div>`;
+            document.getElementById(`flexDiv${divCount}`).style.display = 'flex';
+            document.getElementById(`flexDiv${divCount}`).style.height = '100%';
+            document.getElementById(`flexDiv${divCount}`).style.marginTop = '1vh';
+            document.getElementById(`flexDiv${divCount}`).style.marginRight = '2vw';
+        }
+        document.getElementById(`flexDiv${divCount}`).innerHTML += `<div id='${resOne[i].id}${i}'></div>`
+        document.getElementById(`${resOne[i].id}${i}`).style.backgroundImage = `url(https:${resOne[i].url})`
+        document.getElementById(`${resOne[i].id}${i}`).style.height = '100%';
+        document.getElementById(`${resOne[i].id}${i}`).style.flex = '1';
+        document.getElementById(`${resOne[i].id}${i}`).style.backgroundRepeat = 'no-repeat';
+        document.getElementById(`${resOne[i].id}${i}`).style.backgroundSize = 'contain';
+        document.getElementById(`${resOne[i].id}${i}`).setAttribute('onclick',`openGame("${resOne[i].id}")`);
+    }
+}
+
+function openGame(id){
+    alert(id);
 }

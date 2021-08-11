@@ -203,6 +203,8 @@ function getVideoGames(game, callback){
 }
 
 function retrieveVideoGame(token,game,callback){
+    let coverArr = [];
+
     axios({
         url: "https://api.igdb.com/v4/games",
         method: 'POST',
@@ -211,10 +213,43 @@ function retrieveVideoGame(token,game,callback){
             'Client-ID': 'j8gsbdu9iqblx4ian3gh6lxhxs3djc',
             'Authorization': `Bearer ${token}`
         },
-        data: `fields age_ratings,aggregated_rating,aggregated_rating_count,alternative_names,artworks,bundles,category,checksum,collection,cover,created_at,dlcs,expanded_games,expansions,external_games,first_release_date,follows,forks,franchise,franchises,game_engines,game_modes,genres,hypes,involved_companies,keywords,multiplayer_modes,name,parent_game,platforms,player_perspectives,ports,rating,rating_count,release_dates,remakes,remasters,screenshots,similar_games,slug,standalone_expansions,status,storyline,summary,tags,themes,total_rating,total_rating_count,updated_at,url,version_parent,version_title,videos,websites; search \"${game}\"; `
+        data: `fields cover; search \"${game}\"; limit 100; `
+      })
+        .then(async response => {
+            for(let i = 0; i < response.data.length; i++){
+                if (response.data[i].hasOwnProperty('cover')){
+                    let promise = new Promise((resolve,reject) =>{
+                        getVideoGameCover(response.data[i].cover,token,function(result){
+                            resolve(result);
+                        });
+                    });
+        
+                    let getPromise = await promise;
+    
+                    coverArr.push(getPromise)
+                }
+            }
+
+           return callback(coverArr);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+function getVideoGameCover(coverID, token,callback){
+    axios({
+        url: "https://api.igdb.com/v4/covers",
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Client-ID': 'j8gsbdu9iqblx4ian3gh6lxhxs3djc',
+            'Authorization': `Bearer ${token}`
+        },
+        data: `fields *; where id = ${coverID};`
       })
         .then(response => {
-            return callback(response.data);
+            return callback(response.data[0]);
         })
         .catch(err => {
             console.error(err);
